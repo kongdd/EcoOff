@@ -1,15 +1,14 @@
 +orca.exe
 +Orca.exe
 +julia.exe
++typst.exe
 +python.exe
 +pythonw.exe
 +node.exe
 +bun.exe
 +Code.exe
-
-+path:.orca
-+path:\Orca\
-+path:\.orca-remote\
++claude.exe
++codex.exe
 
 +parent:orca.exe
 +parent:Orca.exe
