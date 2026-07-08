@@ -1,5 +1,6 @@
 # noeco
 
+> noeco.exe干死WIN11效率模式, 仅200kb
 Disable Windows EcoQoS throttling for matched processes.
 
 ## Files

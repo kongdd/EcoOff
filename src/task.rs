@@ -14,26 +14,26 @@ pub fn handle_args() -> io::Result<bool> {
     let Some(cmd) = command() else {
         return Ok(false);
     };
-
     match cmd.to_string_lossy().as_ref() {
-        "install" => {
-            install()?;
-        }
+        "install" => install()?,
         "uninstall" => {
-            run("schtasks", ["/Delete", "/TN", TASK, "/F"])?;
+            check(
+                run("schtasks", ["/Delete", "/TN", TASK, "/F"])?,
+                "schtasks /Delete",
+            )?;
         }
-        "start" => {
-            start()?;
-        }
+        "start" => start()?,
         "stop" => stop()?,
         "log" => log()?,
         "status" => {
-            run("schtasks", ["/Query", "/TN", TASK, "/FO", "LIST"])?;
+            check(
+                run("schtasks", ["/Query", "/TN", TASK, "/FO", "LIST"])?,
+                "schtasks /Query",
+            )?;
         }
         "help" | "-h" | "--help" => usage(),
         _ => usage(),
     }
-
     Ok(true)
 }
 
@@ -57,19 +57,16 @@ fn start() -> io::Result<()> {
         use std::os::windows::process::CommandExt;
         cmd.creation_flags(DETACHED_PROCESS);
     }
-
     let child = cmd.spawn()?;
-    println!(
-        "started noeco pid={} log={}",
-        child.id(),
-        app::home_file("noeco.log").display()
-    );
+    println!("started noeco");
+    println!("  pid     {}", child.id());
+    println!("  log     {}", app::home_file("noeco.log").display());
+    println!("  config  {}", app::home_file("config.txt").display());
     Ok(())
 }
 
 fn install_args() -> Vec<OsString> {
     let exe = std::env::current_exe().unwrap_or_else(|_| "noeco.exe".into());
-
     vec![
         "/Create".into(),
         "/TN".into(),
@@ -96,7 +93,6 @@ fn check(status: ExitStatus, name: &str) -> io::Result<()> {
     if status.success() {
         return Ok(());
     }
-
     Err(io::Error::other(format!("{name} failed: {status}")))
 }
 
@@ -112,16 +108,7 @@ fn stop() -> io::Result<()> {
 
 fn log() -> io::Result<()> {
     let text = fs::read_to_string(app::home_file("noeco.log"))?;
-    for line in text
-        .lines()
-        .rev()
-        .take(80)
-        .collect::<Vec<_>>()
-        .into_iter()
-        .rev()
-    {
-        println!("{line}");
-    }
+    print!("{text}");
     Ok(())
 }
 

@@ -4,7 +4,7 @@ use std::{
     path::Path,
 };
 
-use sysinfo::Pid;
+use crate::app::Proc;
 
 #[derive(Default)]
 pub struct Rule {
@@ -19,14 +19,11 @@ fn low(s: impl AsRef<str>) -> String {
 
 pub fn load(path: &Path) -> std::io::Result<Rule> {
     let mut r = Rule::default();
-
     for line in fs::read_to_string(path)?.lines() {
         let s = line.trim();
-
         if s.is_empty() || s.starts_with('#') {
             continue;
         }
-
         if let Some(x) = s.strip_prefix("+parent:") {
             r.allow_parent.insert(low(x));
         } else if let Some(x) = s.strip_prefix('+') {
@@ -35,53 +32,30 @@ pub fn load(path: &Path) -> std::io::Result<Rule> {
             r.deny_name.insert(low(x));
         }
     }
-
     Ok(r)
 }
 
-pub fn pname(p: &sysinfo::Process) -> String {
-    p.name().to_string_lossy().to_string()
-}
-
-pub fn matched(
-    pid: Pid,
-    p: &sysinfo::Process,
-    ps: &HashMap<Pid, &sysinfo::Process>,
-    r: &Rule,
-) -> bool {
-    let name = low(pname(p));
-
+pub fn matched(p: &Proc, ps: &HashMap<u32, Proc>, r: &Rule) -> bool {
+    let name = low(&p.name);
     if r.deny_name.contains(&name) {
         return false;
     }
-
     if r.allow_name.contains(&name) {
         return true;
     }
-
-    has_parent(pid, ps, &r.allow_parent)
+    has_parent(p, ps, &r.allow_parent)
 }
 
-fn has_parent(pid: Pid, ps: &HashMap<Pid, &sysinfo::Process>, names: &HashSet<String>) -> bool {
-    let mut cur = pid;
-
+fn has_parent(p: &Proc, ps: &HashMap<u32, Proc>, names: &HashSet<String>) -> bool {
+    let mut parent = p.parent;
     for _ in 0..32 {
-        let Some(p) = ps.get(&cur) else {
+        let Some(p) = ps.get(&parent) else {
             return false;
         };
-        let Some(ppid) = p.parent() else {
-            return false;
-        };
-        let Some(parent) = ps.get(&ppid) else {
-            return false;
-        };
-
-        if names.contains(&low(pname(parent))) {
+        if names.contains(&low(&p.name)) {
             return true;
         }
-
-        cur = ppid;
+        parent = p.parent;
     }
-
     false
 }
