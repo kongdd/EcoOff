@@ -61,7 +61,7 @@ fn start() -> io::Result<()> {
     println!("started noeco");
     println!("  pid     {}", child.id());
     println!("  log     {}", app::home_file("noeco.log").display());
-    println!("  config  {}", app::home_file("config.txt").display());
+    println!("  config  {}", app::home_file("config.toml").display());
     Ok(())
 }
 
@@ -107,8 +107,14 @@ fn stop() -> io::Result<()> {
 }
 
 fn log() -> io::Result<()> {
-    let text = fs::read_to_string(app::home_file("noeco.log"))?;
-    print!("{text}");
+    let path = app::home_file("noeco.log");
+    let text = fs::read_to_string(&path)?;
+    let lines: Vec<_> = text.lines().collect();
+    let start = lines.len().saturating_sub(20);
+    for line in &lines[start..] {
+        println!("{line}");
+    }
+    println!("log {}", path.display());
     Ok(())
 }
 

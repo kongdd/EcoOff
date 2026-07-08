@@ -24,7 +24,6 @@ use crate::{MODE, rule};
 const CLASS_POWER_THROTTLING: i32 = 4;
 const VERSION: u32 = 1;
 const EXECUTION_SPEED: u32 = 0x1;
-const SCAN_INTERVAL: Duration = Duration::from_secs(60);
 
 #[repr(C)]
 struct PowerThrottle {
@@ -40,21 +39,12 @@ pub struct Proc {
 }
 
 pub fn run() {
-    let cfg = home_file("config.txt");
+    let cfg = home_file("config.toml");
     let log_path = home_file("noeco.log");
     let verbose = verbose_enabled();
     init_log(&log_path);
-    let rules = match rule::load(&cfg) {
-        Ok(r) => r,
-        Err(e) => {
-            log_line(
-                &log_path,
-                verbose,
-                format!("failed to read config {}: {}", cfg.display(), e),
-            );
-            rule::Rule::default()
-        }
-    };
+    let mut stamp = modified(&cfg);
+    let mut config = load_config(&cfg, &log_path, verbose);
     log_line(
         &log_path,
         verbose,
@@ -65,23 +55,20 @@ pub fn run() {
             log_path.display()
         ),
     );
-    log_line(
-        &log_path,
-        verbose,
-        format!(
-            "rules allow_name={} allow_parent={} deny_name={}",
-            rules.allow_name.len(),
-            rules.allow_parent.len(),
-            rules.deny_name.len()
-        ),
-    );
-
+    log_config(&log_path, verbose, &config);
     let mut done = HashSet::<u32>::new();
     let mut failed = HashSet::<u32>::new();
     loop {
+        if let Some(new_stamp) = modified(&cfg)
+            && stamp != Some(new_stamp)
+        {
+            stamp = Some(new_stamp);
+            config = load_config(&cfg, &log_path, verbose);
+            log_config(&log_path, verbose, &config);
+        }
         let ps = processes();
         for p in ps.values() {
-            if !rule::matched(p, &ps, &rules) {
+            if !rule::matched(p, &ps, &config.rule) {
                 continue;
             }
             match noeco(p.pid) {
@@ -102,8 +89,42 @@ pub fn run() {
                 _ => {}
             }
         }
-        sleep(SCAN_INTERVAL);
+        let secs = config.scan_interval_secs.max(1);
+        let scan_interval = Duration::from_secs(secs);
+        sleep(scan_interval);
     }
+}
+
+fn load_config(path: &Path, log: &Path, verbose: bool) -> rule::Config {
+    match rule::load(path) {
+        Ok(c) => c,
+        Err(e) => {
+            log_line(
+                log,
+                verbose,
+                format!("failed to read config {}: {}", path.display(), e),
+            );
+            rule::Config::default()
+        }
+    }
+}
+
+fn log_config(log: &Path, verbose: bool, config: &rule::Config) {
+    log_line(
+        log,
+        verbose,
+        format!(
+            "scan_interval={}s allow_name={} allow_parent={} deny_name={}",
+            config.scan_interval_secs,
+            config.rule.allow_name.len(),
+            config.rule.allow_parent.len(),
+            config.rule.deny_name.len()
+        ),
+    );
+}
+
+fn modified(path: &Path) -> Option<std::time::SystemTime> {
+    fs::metadata(path).ok()?.modified().ok()
 }
 
 fn verbose_enabled() -> bool {

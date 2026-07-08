@@ -1,0 +1,31 @@
+scan_interval_secs = 20
+
+allow = [
+  "orca.exe",
+  "Orca.exe",
+  "julia.exe",
+  "typst.exe",
+  "python.exe",
+  "pythonw.exe",
+  "node.exe",
+  "bun.exe",
+  "Code.exe",
+  "claude.exe",
+  "codex.exe",
+]
+
+allow_parent = [
+  "orca.exe",
+  "Orca.exe",
+  "Code.exe",
+]
+
+deny = [
+  "svchost.exe",
+  "explorer.exe",
+  "dwm.exe",
+  "csrss.exe",
+  "lsass.exe",
+  "System",
+  "Idle",
+]
