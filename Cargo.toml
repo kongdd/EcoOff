@@ -1,0 +1,14 @@
+[package]
+name = "noeco"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+daemon = []
+
+[dependencies]
+sysinfo = "0.39"
+windows-sys = { version = "0.61", features = [
+  "Win32_Foundation",
+  "Win32_System_Threading"
+] }
