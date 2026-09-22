@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="none">
+  <defs>
+    <linearGradient id="base" x1="160" y1="80" x2="864" y2="944"
+      gradientUnits="userSpaceOnUse">
+      <stop stop-color="#202E38"/>
+      <stop offset="1" stop-color="#0B111B"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1"
+      gradientTransform="translate(736 256) rotate(135) scale(720)">
+      <stop stop-color="#42E8C0" stop-opacity=".14"/>
+      <stop offset="1" stop-color="#42E8C0" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="rim" x1="192" y1="48" x2="800" y2="976"
+      gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity=".03"/>
+    </linearGradient>
+    <linearGradient id="speed" x1="256" y1="640" x2="704" y2="320"
+      gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5CE2A0"/>
+      <stop offset="1" stop-color="#69EDFA"/>
+    </linearGradient>
+    <linearGradient id="needle" x1="488" y1="592" x2="696" y2="352"
+      gradientUnits="userSpaceOnUse">
+      <stop stop-color="#C9F5EC"/>
+      <stop offset="1" stop-color="#FFFFFF"/>
+    </linearGradient>
+  </defs>
+  <rect x="40" y="40" width="944" height="944" rx="224" fill="url(#base)"/>
+  <rect x="40" y="40" width="944" height="944" rx="224" fill="url(#glow)"/>
+  <rect x="42" y="42" width="940" height="940" rx="222"
+    stroke="url(#rim)" stroke-width="4"/>
+  <path d="M269.5 676 A280 280 0 1 1 754.5 676"
+    stroke="#30444E" stroke-width="64" stroke-linecap="round"/>
+  <path d="M269.5 676 A280 280 0 0 1 710 338"
+    stroke="url(#speed)" stroke-width="64" stroke-linecap="round"/>
+  <path d="M485 526 L682 354 Q697 342 691 361 L549 576
+    A44 44 0 1 1 485 526Z" fill="url(#needle)"/>
+  <circle cx="512" cy="552" r="17" fill="#162831"/>
+  <rect x="456" y="740" width="112" height="12" rx="6" fill="#50676E"/>
+</svg>

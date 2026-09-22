@@ -1,18 +1,20 @@
 [package]
-name = "noeco"
-version = "0.1.0"
+name = "ecooff"
+version = "0.2.0"
 edition = "2024"
 
-[features]
-daemon = []
-
 [dependencies]
+serde = { version = "1", features = ["derive"] }
+tauri = "2"
 windows-sys = { version = "0.61", default-features = false, features = [
   "Win32_Foundation",
   "Win32_System_Diagnostics_ToolHelp",
   "Win32_System_SystemInformation",
   "Win32_System_Threading"
 ] }
+
+[build-dependencies]
+tauri-build = "2"
 
 [profile.release]
 codegen-units = 1

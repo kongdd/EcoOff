@@ -1,19 +1,13 @@
-#![cfg_attr(feature = "daemon", windows_subsystem = "windows")]
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod app;
 mod rule;
-mod task;
 
-const MODE: &str = if cfg!(feature = "daemon") {
-    "daemon"
-} else {
-    "verbose"
-};
-
-fn main() -> std::io::Result<()> {
-    if task::handle_args()? {
-        return Ok(());
-    }
-    app::run();
-    Ok(())
+fn main() {
+    app::remove_legacy_task();
+    tauri::Builder::default()
+        .manage(app::Monitor::start())
+        .invoke_handler(tauri::generate_handler![app::dashboard, app::save_config])
+        .run(tauri::generate_context!())
+        .expect("failed to run EcoOff");
 }

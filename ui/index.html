@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoOff</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark"></span><span>EcoOff</span></div>
+    <p class="tagline">PROCESS CONTROL</p>
+    <nav aria-label="页面导航">
+      <a class="active" href="#overview">运行状态</a>
+      <a href="#rules">规则设置</a>
+      <a href="#logs">运行日志</a>
+    </nav>
+    <div class="sidebar-foot">
+      <span class="pulse"></span>
+      <div><strong>本地运行</strong><small>无后台服务 · 无黑窗</small></div>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <div>
+        <h1>进程效能控制台</h1>
+        <p class="subtitle">监控并解除目标进程的 EcoQoS 限制</p>
+      </div>
+      <div id="status-pill" class="status-pill"><span></span>正在连接</div>
+    </header>
+
+    <section id="overview" aria-labelledby="overview-title">
+      <div class="section-title">
+        <h2 id="overview-title">运行概览</h2>
+        <p id="last-scan">等待首次扫描</p>
+      </div>
+      <div class="metrics">
+        <article>
+          <span>受保护进程</span><strong id="matched-count">—</strong><small>当前命中规则</small>
+        </article>
+        <article>
+          <span>扫描进程</span><strong id="scanned-count">—</strong><small>系统进程总数</small>
+        </article>
+        <article>
+          <span>扫描间隔</span><strong><b id="interval-count">—</b><i>秒</i></strong>
+          <small>配置自动热更新</small>
+        </article>
+      </div>
+
+      <article class="panel process-panel">
+        <div class="panel-head">
+          <div><h3>受保护进程</h3><p>当前已解除效能限制的进程</p></div>
+          <span id="process-badge">0 个</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>进程</th><th>PID</th><th>父进程</th><th>状态</th></tr></thead>
+            <tbody id="process-list"></tbody>
+          </table>
+          <div id="process-empty" class="empty">暂无命中进程，EcoOff 会持续扫描。</div>
+        </div>
+      </article>
+    </section>
+
+    <section id="rules" aria-labelledby="rules-title">
+      <div class="section-title">
+        <h2 id="rules-title">规则设置</h2>
+        <button id="save" type="button">保存并应用</button>
+      </div>
+      <article class="panel config-panel">
+        <label class="interval">
+          扫描间隔 <input id="interval" type="number" min="1" max="3600" required> 秒
+        </label>
+        <div class="rule-grid">
+          <label>
+            <span>白名单</span><small>每行一个进程名</small>
+            <textarea id="allow" spellcheck="false"></textarea>
+          </label>
+          <label>
+            <span>父进程白名单</span><small>匹配其全部子进程</small>
+            <textarea id="allow-parent" spellcheck="false"></textarea>
+          </label>
+          <label>
+            <span>黑名单</span><small>优先级高于白名单</small>
+            <textarea id="deny" spellcheck="false"></textarea>
+          </label>
+        </div>
+        <p id="config-path" class="path"></p>
+      </article>
+    </section>
+
+    <section id="logs" aria-labelledby="logs-title">
+      <div class="section-title">
+        <h2 id="logs-title">运行日志</h2>
+        <p id="log-path"></p>
+      </div>
+      <article class="log-panel"><pre id="log-output">正在读取日志…</pre></article>
+    </section>
+  </main>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
